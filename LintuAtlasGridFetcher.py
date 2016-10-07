@@ -1,7 +1,7 @@
 speciesnamesfile = "species-names.txt"
 
-def getspeciesnames():
-    sf = open(speciesnamesfile, 'r')
+def getspeciesnames(speciesfilename):
+    sf = open(speciesfilename, 'r')
     names = {}
     s = sf.readline()
     s = sf.readline()
@@ -11,9 +11,8 @@ def getspeciesnames():
         s = sf.readline()
     return names
 
-def getgrid(names):
-    breedingfile = "atlas3-breeding-data.txt"
-    bf = open(breedingfile, 'r')
+def getgrid(breedfilename, names):
+    bf = open(breedfilename, 'r')
 
     grid = {}
 
@@ -22,9 +21,13 @@ def getgrid(names):
 
     while len(s) > 0:
         parts = s.split("\t")
-        print(parts)
-        spec = names[parts[1]] + ":" + parts[5]
-        pos = parts[2] + ":" + parts[3]
+        code, n, e, freq = parts[1], parts[2], parts[3], parts[5].strip()
+        if code not in names:
+            print("skipped " + code)
+            s = bf.readline()
+            continue
+        spec = names[code] + ":" + freq
+        pos = n + ":" + e
         try:
             old = grid[pos]
             grid[pos] = old + "," + spec
@@ -32,24 +35,14 @@ def getgrid(names):
             grid[pos] = spec
         s = bf.readline()
 
-    print grid
+    return grid
 
 if __name__ == "__main__":
-
-    names = getspeciesnames()
-    grid = getgrid(names)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    specfile, breedfile, outfile = "species-names.txt", "atlas3-breeding-data.txt", "grid.csv"
+    names = getspeciesnames(specfile)
+    grid = getgrid(breedfile, names)
+    f = open(outfile, 'w')
+    for pos, line in grid.iteritems():
+        f.write(pos + "," + line + "\n")
+    f.close()
 
