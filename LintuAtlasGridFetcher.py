@@ -59,21 +59,3 @@ def getgrid(breedfilename, names):
     # grid should now be filled with breeding info
     return grid
 
-if __name__ == "__main__":
-    # species code to full name file,
-    # breeding grid data file,
-    # output csv file
-    specfile, breedfile, outfile = "species-names.txt", "atlas3-breeding-data.txt", "grid.csv"
-    # make dictionary wich combines code and name
-    # with code as key value
-    names = getspeciesnames(specfile)
-    # make a dictionary where
-    # key values are the grid coordinates
-    # and values the breeding info
-    grid = getgrid(breedfile, names)
-    # write grid dictonary to outfile
-    f = open(outfile, 'w')
-    for pos, line in grid.iteritems():
-        f.write(pos + "," + line + "\n")
-    f.close()
-
