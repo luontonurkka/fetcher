@@ -1,3 +1,5 @@
+import coordinates
+
 def getspeciesnames(speciesfilename):
     # open the file
     sf = open(speciesfilename, 'r')
@@ -43,8 +45,10 @@ def getgrid(breedfilename, names):
             continue
         # get full name and combine it with freq
         spec = names[code] + ":" + freq
+        # converse YKJ coordinates to WGS48 coordinates
+        WGS = coordinates.KKJxy_to_WGS84lalo({'P': int(n)*10000, 'I': int(e)*10000}, 3)
         # combine north and east pos
-        pos = n + ":" + e
+        pos = str(WGS['La']) + ":" + str(WGS['Lo'])
         try:
             # try to append to the grid pos
             # will raise KeyError if grid pos is not in the dict

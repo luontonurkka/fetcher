@@ -5,13 +5,12 @@ def getgrid():
     # get list of the grid squares
     response = urllib2.urlopen('http://koivu.luomus.fi/kasviatlas/ruudut-json.php')
     data = response.read()
-    posgrid = data.split(',')
     # remove square brackets
     posgrid[0] = posgrid[0][1:]
     posgrid[-1] = posgrid[-1][0:-1]
     # remove "
     for i in range(len(posgrid)):
-        posgrid[i] = posgrid[i][1:-1]
+        posgrid[i] = posgrid[i][1:-1] 
     return posgrid
 
 def getgridpos(ne, year):

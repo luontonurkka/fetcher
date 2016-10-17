@@ -1,6 +1,7 @@
 import KasviAtlasGridFetcher
 import LintuAtlasGridFetcher
 import codecs, time
+import coordinates
 
 # to check total time
 t = time.time()
@@ -19,7 +20,10 @@ grid = KasviAtlasGridFetcher.makecsvdict(grid, 2015)
 print("writing to 'grid.csv'")
 f = codecs.open("grid.csv", 'w', 'utf-8')
 for pos, line in grid.iteritems():
-    f.write(pos + "," + line + "\n")
+  # get YKJ coordinates and converse them to WGS84
+  coordYKJ = pos.split(':')
+  WGS = coordinates.KKJxy_to_WGS84lalo({'P':int(coordYKJ[0])*10000, 'I':int(coordYKJ[1])*10000}, 3)
+  f.write(str(WGS["La"]) + ":" + str(WGS["Lo"])  + "," + line + "\n")
 f.close()
 
 # done
