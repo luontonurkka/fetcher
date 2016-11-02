@@ -34,7 +34,7 @@ def makecsvline(gridjson):
     # make comma seperated string out of the species info
     comma = ""
     for laji in lajit:
-        line = line + comma + laji + ":" + lajit[laji]['frekvenssi']
+        line = line + comma + laji + ":2:" + lajit[laji]['frekvenssi']
         comma = ","
     return line
 

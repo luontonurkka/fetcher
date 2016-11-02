@@ -42,7 +42,7 @@ def getgrid(breedfilename, names):
             s = bf.readline()
             continue
         # get full name and combine it with freq
-        spec = names[code] + ":" + freq
+        spec = names[code] + ":1:" + freq
         # combine north and east pos
         pos = n + ":" + e
         try:
