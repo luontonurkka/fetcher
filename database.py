@@ -5,8 +5,8 @@ def createtables():
     """
     Opening the database and tables, create tables if they dont exist
     """
-    db= dataset.connect('sqlite:///LuontonurkkaDB')
-    tableSquare = db.get_table("square",)
+    db= dataset.connect('sqlite:///LuontonurkkaDB.db')
+    tableSquare = db.get_table("grid",)
     tableSpecies = db.get_table("species")
     tableSpeSqr = db.get_table("species_in_square")
 
@@ -29,53 +29,56 @@ def createtables():
     tableSpecies.create_column("idFI",sqlalchemy.types.Integer)
 
 
+
 """filling both species in square and square tables using id data from speciestable and gridcsv for"""
-def squaresdata_fillfromCSV():
-    db = dataset.connect('sqlite:///LuontonurkkaDB')
-    tableSquare = db.get_table("square", )
+def data_fillfromCSV():
+    db = dataset.connect('sqlite:///LuontonurkkaDB.db')
+    tableSquare = db.get_table("grid")
     tableSpecies = db.get_table("species")
     tableSpeSqr = db.get_table("species_in_square")
-    gridcsv = codecs.open("grid_sorted.csv", "r" , "UTF-8")
 
-    stack = gridcsv.readlines()
-    for asd in stack:
-        blo = asd.split(',')        #split lines to form 'name:type:id lists'
-
-        acab ={}
-        for item in blo:
-            if re.match("[0-9]{3}:[0-9]{3}", item):    #if is grid, save to grid table for ID in later use
-                a,b = item.split(':')
-                acab = dict(N =a, E = b)
-                tableSquare.insert(acab)
-            else:
-                species = item.split(':')
-                spec= tableSpecies.find_one(namelatin = species[0])     #replace the name with id from speciestable
-                if spec is not None:
-                    specgrid = tableSquare.find_one(N=acab['N'], E=acab['E'])      #replace coords with ID from squaretable
-                    info = dict(sid=spec['id'], gid=specgrid['id'], freq=species[2])
-                    tableSpeSqr.insert(info)                               #insert data into table
-
-def fillspeciestable():
-
-    db = dataset.connect('sqlite:///LuontonurkkaDB')
-    tableSpecies = db.get_table("species")
-
-
-    csv = codecs.open("species.csv", "r" , "UTF-8")
-    asd = csv.readlines()
-    datablob = []
-    for line in asd:
+    csv = codecs.open("species.CSV", "r", "UTF-8")
+    asdi = csv.readlines()
+    datablob = {}
+    specieslist = []
+    counter = 1
+    for line in asdi:
         if not line.__contains__("###ERROR###"):
             specdata = line.split(',')
             specdata[5] = specdata[5].strip("\n")
-            data = dict(namelatin = specdata[0],namefin = specdata[1],type = specdata[2],picture = specdata[3], idEN = specdata[4], idFI = specdata[5])
-            datablob.append(data)
-    tableSpecies.insert_many(datablob)
+            data = dict(id=counter, namelatin=specdata[0], namefin=specdata[1], type=specdata[2], picture=specdata[3],
+                        idEN=specdata[4], idFI=specdata[5])
+            counter += 1
+            specieslist.append(data)
+            datablob[specdata[0]] = data
 
+    gridcsv = codecs.open("grid_sorted.csv", "r", "UTF-8")
+
+    listItems = []
+    listCoords = []
+    stackItems = gridcsv.readlines()
+    for line in stackItems:
+        blo = []
+        blo = line.split(',')
+        bla = blo[0].split(':')
+        acab = dict(N=bla[0], E=bla[1])
+        listCoords.append(acab)
+        del blo[0]
+        for item in blo:
+            species = item.split(':')
+            spec = datablob.get(species[0])  # replace the name with id from speciestable
+            if spec is not None:
+                specgrid = len(listCoords)  # replace coords with ID from squaretable
+                info = dict(sid=spec['id'], gid=specgrid, freq=species[2].strip("\r\n"))
+                listItems.append(info)
+    #finally, the inserts
+    tableSpecies.insert_many(specieslist)
+    tableSquare.insert_many(listCoords)
+    tableSpeSqr.insert_many(listItems)
 
 def fillspeciesproperly():
     """Add names and types to speciestable"""
-    db = dataset.connect('sqlite:///LuontonurkkaDB')
+    db = dataset.connect('sqlite:///LuontonurkkaDB.db')
     tableSpecies = db.get_table("species")
 
     asd = Names.getspeciesnames("species-names.txt")
@@ -85,3 +88,4 @@ def fillspeciesproperly():
 
 
 
+data_fillfromCSV()
