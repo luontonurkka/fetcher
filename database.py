@@ -1,33 +1,45 @@
 # -*- coding: utf-8 -*-
-import dataset, sqlalchemy, codecs, re, Names, time
+import dataset,codecs, Names, sqlite3
 
 def createtables():
     """
     Opening the database and tables, create tables if they dont exist
     """
-    db= dataset.connect('sqlite:///LuontonurkkaDB.db')
-    tableSquare = db.get_table("grid",)
-    tableSpecies = db.get_table("species")
-    tableSpeSqr = db.get_table("species_in_square")
+    conn = sqlite3.connect('LuontonurkkaDB.db')
 
-    """
-    Create table columns, check if these are what we wanted.
-    """
-    tableSquare.create_column("N", sqlalchemy.types.INTEGER)
-    tableSquare.create_column("E", sqlalchemy.types.Integer)
+    conn.execute('''CREATE TABLE `grid` (
+    	`id`	INTEGER NOT NULL,
+    	`N`	INTEGER NOT NULL,
+    	`E`	INTEGER NOT NULL,
+    	`sqrname`	VARCHAR,
+    	PRIMARY KEY(id)
+    );''')
+    conn.execute('''CREATE TABLE `species` (
+    	`id`	INTEGER NOT NULL,
+    	`namelatin`	VARCHAR NOT NULL,
+    	`namefin`	VARCHAR,
+    	`type`	INTEGER NOT NULL,
+    	`picture`	VARCHAR,
+    	`idEN`	VARCHAR,
+    	`idFI`	VARCHAR,
+    	PRIMARY KEY(id)
+    );''')
+    conn.execute('''CREATE TABLE "species_in_square" (
+    	`id`	INTEGER NOT NULL,
+    	`sid`	INTEGER NOT NULL,
+    	`gid`	INTEGER NOT NULL,
+    	`freq`	INTEGER,
+    	PRIMARY KEY(id)
+    )''')
 
-    tableSpeSqr.create_column("sid", sqlalchemy.types.Integer)
-    tableSpeSqr.create_column("gid", sqlalchemy.types.Integer)
-    tableSpeSqr.create_column("freq", sqlalchemy.types.Integer)
-
-
-    tableSpecies.create_column("namelatin",sqlalchemy.types.String)
-    tableSpecies.create_column("namefin",sqlalchemy.types.String)
-    tableSpecies.create_column("type",sqlalchemy.types.Integer)
-    tableSpecies.create_column("picture",sqlalchemy.types.String)
-    tableSpecies.create_column("idEN",sqlalchemy.types.Integer)
-    tableSpecies.create_column("idFI",sqlalchemy.types.Integer)
-
+    ##
+    ## Sql for indexes
+    ##
+    conn.execute('''CREATE INDEX gridIndex
+    on grid (N, E);''')
+    conn.execute('''CREATE INDEX sqrID
+    on species_in_square (gid);''')
+    conn.close()
 
 
 """filling both species in square and square tables using id data from speciestable and gridcsv for"""
@@ -54,6 +66,7 @@ def data_fillfromCSV():
 
     gridcsv = codecs.open("grid_sorted.csv", "r", "UTF-8")
 
+    gridnames = Names.getgridnames()
     listItems = []
     listCoords = []
     stackItems = gridcsv.readlines()
@@ -61,7 +74,11 @@ def data_fillfromCSV():
         blo = []
         blo = line.split(',')
         bla = blo[0].split(':')
-        acab = dict(N=bla[0], E=bla[1])
+        namn =""
+        for i, dic in enumerate(gridnames):
+            if dic['N'] == bla[0] and dic['E'] == bla[1]:
+                namn = dic['name']
+        acab = dict(N=bla[0], E=bla[1], sqrname=namn)
         listCoords.append(acab)
         del blo[0]
         for item in blo:
@@ -76,16 +93,10 @@ def data_fillfromCSV():
     tableSquare.insert_many(listCoords)
     tableSpeSqr.insert_many(listItems)
 
-def fillspeciesproperly():
-    """Add names and types to speciestable"""
-    db = dataset.connect('sqlite:///LuontonurkkaDB.db')
-    tableSpecies = db.get_table("species")
-
-    asd = Names.getspeciesnames("species-names.txt")
-    wasd = Names.getplantnames()
-    line = asd[0]
-    data = dict([('namelatin',line[0]),('namefin', line[1]),('type', 2)])
 
 
 
+
+
+createtables()
 data_fillfromCSV()

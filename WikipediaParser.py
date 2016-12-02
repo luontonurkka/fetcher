@@ -1,21 +1,46 @@
-import wikipedia, requests
+import wikipedia, requests, bs4
 
 def getpicture(name):
     if name == "Apera":
         return "-1"
     try:
         page = wikipedia.page(name)
+        asd = page.images
 
-        pic = page.images[0]
+        for imga in asd:
+            if not imga.__contains__("svg"):
+                pic = imga
+                break
+            else:
+                pic = "-1"
         return pic
     except:
         pic = "-1"
         return pic
 
+def getpictureSoup(name):
+    try:
+        asd = requests.get("https://en.wikipedia.org/wiki/%s" % name)
+        site = asd.text
+        soup = bs4.BeautifulSoup(site)
+        kuva = soup.find('table', {"class": "infobox biota"})
+        pra = kuva.find('img')
+        pre = pra['src']
+        pri = pre.replace("/thumb", "")
+        pra, b = pri.split("/220")
+        pic = "https:" + pra
+        return pic
+    except:
+        return "-1"
+
 def getIDen(name):
-    page = wikipedia.page(name)
-    enid = page.pageid
-    return enid
+    try:
+        page = wikipedia.page(name)
+        enid = page.pageid
+        return enid
+    except:
+        enid = "-1"
+        return enid
 
 def getIDfi(name):
     wikipedia.set_lang("fi")
@@ -25,7 +50,7 @@ def getIDfi(name):
         wikipedia.set_lang("en")
         return finid
     except:
-        finid = -1
+        finid = "-1"
         return finid
 
 def getdescriptionfin(name):

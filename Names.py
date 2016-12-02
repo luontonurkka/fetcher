@@ -1,4 +1,4 @@
-import requests
+import requests, bs4
 
 
 def getplantnames():
@@ -46,4 +46,19 @@ def getspeciesnames(speciesfilename):
         names.append((parts[1], parts[2]))
         # read next line
         s = sf.readline()
+    return names
+
+def getgridnames():
+    names = []
+    site = requests.get("http://atlas3.lintuatlas.fi/tulokset/ruudut")
+    soup = bs4.BeautifulSoup(site.text)
+    lista = soup.find("div", {"id": "d-main"})
+    das=  lista.get_text().splitlines()
+    for item in das:
+        try:
+            a,b = item.split(",")
+            N,E = b.strip().split(":")
+            names.append(dict(N=N,E=E,name=a))
+        except:
+            continue
     return names
