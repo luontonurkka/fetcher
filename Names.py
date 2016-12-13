@@ -1,30 +1,35 @@
 import requests, bs4
 
+"""
+Under MIT-Licence, 2016 Perttu Rautaniemi
+"""
 
 def getplantnames():
     """ This method gets all the scientific and finnish names from url and returns them"""
-    # open the html file
-    site = requests.get("http://koivu.luomus.fi/kasviatlas/all.php")
-    # make an empty list
     names = []
-    # start reading the html document by splitting into lines
-    a = site.text.splitlines()
-    for line in a:
-        # lets grab all links, counting out the first one wich does not suit our needs
-        if line.startswith("<a href=") and not line.__contains__("vaxtatlas"):
-            # splitting the line until we get "scientific - finnish"
-            b, a, = line.split('>', 1)
-            a, b = a.split('<', 1)
-            # print(a)
-            a, b = a.split('(', 1)
-            latin, finnish = a.split('-', 1)
-            latin = latin.strip()
-            finnish = finnish.strip()
-            # capitals for uniformity, then appending our friendly list.
-            finnish = finnish.capitalize()
-            # print(finnish)
-            names.append((latin, finnish))
-            #   return names
+    site = requests.get("http://koivu.luomus.fi/kasviatlas/all.php")
+    soup = bs4.BeautifulSoup(site.text)
+    lista = soup.find("div", {"id": "main"})
+    das = lista.get_text().splitlines()
+    del das[0:2]
+    del das[len(das) - 3:]
+    for line in das:
+        latin, finnish = line.split(' - ', 1)
+        print(finnish)
+        latin = latin.strip()
+        finnish = finnish.strip()
+        finn = finnish.split(' ')
+        del finn[len(finn) - 1]
+        finnish = " ".join(finn)
+        finnish = finnish.replace('(', '')
+        finnish = finnish.replace(')', '')
+        finnish = finnish.replace(',', '')
+        finnish = finnish.capitalize()
+        o = latin.split(' ')
+        if len(o) == 1 or finnish.__contains__("Ryhmä") or finnish.__contains__("ryhmä") or len(finnish)<2:
+            continue
+        else:
+            names.append([latin, finnish])
     return names
 
 ###I brazenly took this from jarno's code and modified it for my needs, thanks###
@@ -43,7 +48,7 @@ def getspeciesnames(speciesfilename):
         # first colums in the code and second full name
         parts = s.split("\t")
         # add dict
-        names.append((parts[1], parts[2]))
+        names.append([parts[1], parts[2]])
         # read next line
         s = sf.readline()
     return names

@@ -1,7 +1,9 @@
 import KasviAtlasGridFetcher
 import LintuAtlasGridFetcher
 import codecs, time
-
+"""
+Under MIT-Licence, 2016 Jarno Kiesiläinen
+"""
 # to check total time
 t = time.time()
 

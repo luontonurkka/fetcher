@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Under MIT-Licence, 2016 Jarno Kiesiläinen
+"""
 import json, urllib2, codecs
 
 def getgrid():

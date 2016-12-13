@@ -1,3 +1,6 @@
+"""
+Under MIT-Licence, 2016 Jarno Kiesiläinen
+"""
 def getspeciesnames(speciesfilename):
     # open the file
     sf = open(speciesfilename, 'r')

@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 import dataset,codecs, Names, sqlite3
 
+"""
+Under MIT-Licence, 2016 Perttu Rautaniemi
+"""
+
+
 def createtables():
     """
     Opening the database and tables, create tables if they dont exist
@@ -98,5 +103,5 @@ def data_fillfromCSV():
 
 
 
-createtables()
+#createtables()
 data_fillfromCSV()

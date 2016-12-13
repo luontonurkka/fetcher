@@ -1,5 +1,9 @@
 import wikipedia, requests, bs4
 
+"""
+Under MIT-Licence, 2016 Perttu Rautaniemi
+"""
+
 def getpicture(name):
     if name == "Apera":
         return "-1"
@@ -8,7 +12,7 @@ def getpicture(name):
         asd = page.images
 
         for imga in asd:
-            if not imga.__contains__("svg"):
+            if not (imga.__contains__("svg") or imga.__contains__("ogg") or imga.__contains__("ogv") or imga.__contains__("map") or imga.__contains__("range") or imga.__contains__("Bronze-Oak-Leaf-Cluster")or imga.__contains__("Bronze-Oak-Leaf-Cluster")):
                 pic = imga
                 break
             else:
